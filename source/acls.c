@@ -4210,7 +4210,10 @@ void ntfs_free_mapping(struct MAPPING *mapping[])
 	}
 }
 
-
+#if defined(GEKKO) || defined(__wiiu__)
+struct MAPPING *ntfs_do_user_mapping(struct MAPLIST *firstitem) { return NULL; }
+struct MAPPING *ntfs_do_group_mapping(struct MAPLIST *firstitem) { return NULL; }
+#else
 /*
  *		Build the user mapping list
  *	user identification may be given in symbolic or numeric format
@@ -4359,3 +4362,5 @@ struct MAPPING *ntfs_do_group_mapping(struct MAPLIST *firstitem)
 	}
 	return (firstmapping);
 }
+
+#endif // #if defined(GEKKO) || defined(__wiiu__)

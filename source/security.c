@@ -3940,6 +3940,7 @@ le32 ntfs_inherited_id(struct SECURITY_CONTEXT *scx,
 static int link_single_group(struct MAPPING *usermapping, struct passwd *user,
 			gid_t gid)
 {
+#if !defined(GEKKO) && !defined(__wiiu__)
 	struct group *group;
 	char **grmem;
 	int grcnt;
@@ -3971,6 +3972,9 @@ static int link_single_group(struct MAPPING *usermapping, struct passwd *user,
 		usermapping->groups = groups;
 	}
 	return (res);
+#else
+	return -1;
+#endif
 }
 
 
@@ -3988,6 +3992,7 @@ static int link_single_group(struct MAPPING *usermapping, struct passwd *user,
 
 static int link_group_members(struct SECURITY_CONTEXT *scx)
 {
+#if !defined(GEKKO) && !defined(__wiiu__)
 	struct MAPPING *usermapping;
 	struct MAPPING *groupmapping;
 	struct passwd *user;
@@ -4013,8 +4018,10 @@ static int link_group_members(struct SECURITY_CONTEXT *scx)
 		}
 	}
 	return (res);
+#else
+	return -1;
+#endif
 }
-
 /*
  *		Apply default single user mapping
  *	returns zero if successful
@@ -5171,7 +5178,11 @@ struct SECURITY_API *ntfs_initialize_file_security(const char *device,
 
 	scapi = (struct SECURITY_API*)NULL;
 	mnt = ntfs_check_if_mounted(device, &mntflag);
+#if !defined(GEKKO) && !defined(__wiiu__)
 	if (!mnt && !(mntflag & NTFS_MF_MOUNTED) && !getuid()) {
+#else
+	if (!mnt && !(mntflag & NTFS_MF_MOUNTED)) {
+#endif
 		vol = ntfs_mount(device, flags);
 		if (vol) {
 			scapi = (struct SECURITY_API*)
@@ -5182,8 +5193,10 @@ struct SECURITY_API *ntfs_initialize_file_security(const char *device,
 				scapi->seccache = (struct PERMISSIONS_CACHE*)NULL;
 				scx = &scapi->security;
 				scx->vol = vol;
+#if !defined(GEKKO) && !defined(__wiiu__)
 				scx->uid = getuid();
 				scx->gid = getgid();
+#endif
 				scx->pseccache = &scapi->seccache;
 				scx->vol->secure_flags = 0;
 					/* accept no mapping and no $Secure */
@@ -5199,9 +5212,11 @@ struct SECURITY_API *ntfs_initialize_file_security(const char *device,
 			}
 		}
 	} else
+#if !defined(GEKKO) && !defined(__wiiu__)
 		if (getuid())
 			errno = EPERM;
 		else
+#endif
 			errno = EBUSY;
 	return (scapi);
 }

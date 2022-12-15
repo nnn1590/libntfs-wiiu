@@ -30,7 +30,7 @@
 
 #ifndef __CYGWIN32__
 
-#ifndef GEKKO
+#if !defined(GEKKO) && !defined(__wiiu__)
 /* Not on Cygwin; use standard Unix style low level device operations. */
 #define ntfs_device_default_io_ops ntfs_device_unix_io_ops
 #else
